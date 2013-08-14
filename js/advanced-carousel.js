@@ -79,10 +79,14 @@
 		parent.waitTime = originalWaitTime;
 
 		var linkHeight = parent.leftLink.height();
-		parent.leftLink.on("click", function(){ parent.slideRight.call(parent); }).
+		parent.leftLink.on("click", function(){ 
+			parent.disableAutoScroll.call(parent);
+			parent.slideRight.call(parent); }).
 			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
 		
-		parent.rightLink.on("click",function(){ parent.slideLeft.call(parent); }).
+		parent.rightLink.on("click",function(){ 
+			parent.disableAutoScroll.call(parent);
+			parent.slideLeft.call(parent); }).
 			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
 
 		parent.createSlidingLinks();
@@ -241,9 +245,17 @@
 	{
 		var parent = this;
 		setTimeout(function(){
-			parent.slideLeft();
-			parent.setUpAutoScroll.call(parent);
+			if(parent.autoSlide == true)
+			{
+				parent.slideLeft();
+				parent.setUpAutoScroll.call(parent);
+			}
 		}, 3000);
+	}
+
+	lSAdvancedSlider.prototype.disableAutoScroll = function(){
+		var parent = this;
+		parent.autoSlide = false;
 	}
 
 	lSAdvancedSlider.prototype.handleDocumentKeyPress = function(e){
