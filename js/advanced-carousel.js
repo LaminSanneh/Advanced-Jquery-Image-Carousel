@@ -210,6 +210,9 @@
 			var newLink = $("<li>", { class: parent.scrollButtonClass.replace(".","")}).text(index+1);
 			
 			newLink.on("click", function(){
+
+				parent.autoSlide = false;
+
 				var index, numberOfSlides;
 				var currentActiveLink = parent.scrollButtonsContainer.find(".activeLink");
 				var indexOfActiveLink = parent.scrollButtonsContainer.find("li").index(currentActiveLink);
