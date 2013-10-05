@@ -81,12 +81,12 @@
 		var linkHeight = parent.leftLink.height();
 		parent.leftLink.on("click", function(){ 
 			parent.disableAutoScroll.call(parent);
-			parent.slideRight.call(parent); }).
+			parent.slideRight(); }).
 			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
 		
 		parent.rightLink.on("click",function(){ 
 			parent.disableAutoScroll.call(parent);
-			parent.slideLeft.call(parent); }).
+			parent.slideLeft(); }).
 			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
 
 		parent.createSlidingLinks();
