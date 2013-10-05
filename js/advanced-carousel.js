@@ -80,12 +80,12 @@
 
 		var linkHeight = parent.leftLink.height();
 		parent.leftLink.on("click", function(){ 
-			parent.disableAutoScroll.call(parent);
+			parent.disableAutoScroll();
 			parent.slideRight(); }).
 			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
 		
 		parent.rightLink.on("click",function(){ 
-			parent.disableAutoScroll.call(parent);
+			parent.disableAutoScroll();
 			parent.slideLeft(); }).
 			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
 
@@ -251,7 +251,7 @@
 			if(parent.autoSlide == true)
 			{
 				parent.slideLeft();
-				parent.setUpAutoScroll.call(parent);
+				parent.setUpAutoScroll();
 			}
 		}, 3000);
 	}
