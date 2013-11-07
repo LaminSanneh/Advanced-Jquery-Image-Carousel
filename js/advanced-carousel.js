@@ -28,15 +28,6 @@
 
 		this.wrapper = 
 			$(this.options.wrapper);
-		
-		this.leftTransparentElement = 
-			$(this.options.leftTransparentElement);
-		
-		this.rightTransparentElement = 
-			$(this.options.rightTransparentElement);
-
-		this.transparentWidth = 
-			this.rightTransparentElement.width();
 
 		this.customHeight = 
 			this.options.customHeight;
@@ -44,9 +35,9 @@
 		this.carouselItem = 
 			this.options.carouselItem;
 
-		this.singleImageWidth = this.carouselOuter.width() - 
-			(this.leftTransparentElement.width() + 
-				this.rightTransparentElement.width());
+		// this.singleImageWidth = this.carouselOuter.width() - 
+		// 	(this.leftTransparentElement.width() + 
+		// 		this.rightTransparentElement.width());
 
 		this.leftLink = $(this.options.leftLink);
 
@@ -56,26 +47,83 @@
 
 		this.scrollButtonClass = this.options.scrollButtonClass;
 
+		this.numberOfCarouselItems = $(parent.carouselItem).length;
+
+		this.singleCarouselItemWidth = parent.carouselOuter.width();
+
+		this.animationDuration = this.options.animationDuration;
+
+		this.easingType = this.options.easing;
+
 		this.init();
 	};
+
+	//this function will be called at first time and subsequently anytime 
+	// our browser window is resized
+	lSAdvancedSlider.prototype.reCalculateElementSizes = _.throttle(function(){
+
+		// parent.wrapper.finish();
+		parent.disableAllClickHandlers();
+
+		parent.singleCarouselItemWidth = parent.carouselOuter.width();
+		parent.wrapper.width(parent.singleCarouselItemWidth * parent.numberOfCarouselItems);
+		$(parent.carouselItem).animate({width: parent.singleCarouselItemWidth}, 100, function(){
+			parent.carouselInner.css({height: parent.wrapper.height()});
+			parent.rightLink.css({top: (parent.carouselOuter.height() - parent.leftLink.height()) / 2});
+			parent.leftLink.css({top: (parent.carouselOuter.height() - parent.leftLink.height()) / 2});
+
+			parent.setupAllClickHandlers();
+		});
+		
+		parent.wrapper.animate({left: 0}, 100, parent.easingType);
+	}, 500);
+
+	lSAdvancedSlider.prototype.setupAllClickHandlers = function(){
+		$(document).on("keyup",function(e){
+			parent.handleDocumentKeyPress(e);
+		});
+
+		parent.leftLink.on("click", function(e){
+			e.preventDefault();
+			parent.slideRight();
+		});
+		
+		parent.rightLink.on("click", function(e){
+			e.preventDefault();
+			parent.slideLeft();
+		});
+	}
+
+	lSAdvancedSlider.prototype.disableAllClickHandlers = function(){
+		$(document).off("keyup");
+
+		parent.leftLink.off("click");
+		
+		parent.rightLink.off("click");
+	}
 
 	lSAdvancedSlider.prototype.init = function()
 	{
 		var totalNumberOfImages = $(parent.carouselItem).length;
 
-			$(parent.carouselItem).width(parent.singleImageWidth);
-			parent.wrapper.width(totalNumberOfImages * parent.singleImageWidth);
+		this.reCalculateElementSizes();
 
-			parent.carouselInner.height(parent.customHeight).width(parent.singleImageWidth);
-			parent.leftTransparentElement.height(parent.customHeight);
-			parent.rightTransparentElement.height(parent.customHeight);
-			$(parent.carouselItem).height(parent.customHeight);
+		parent.setupAllClickHandlers();
 
-			$(parent.carouselItem).eq($(parent.carouselItem).length - 1).
-				insertBefore($(parent.carouselItem).eq(0));
+			// parent.carouselInner.height(parent.customHeight).width(parent.singleImageWidth);
+			// parent.leftTransparentElement.height(parent.customHeight);
+			// parent.rightTransparentElement.height(parent.customHeight);
+			// $(parent.carouselItem).height(parent.customHeight);
 
-		$(document).on("keyup",function(e){
-			parent.handleDocumentKeyPress(e);
+		// $(parent.carouselItem).eq($(parent.carouselItem).length - 1).
+		// 	insertBefore($(parent.carouselItem).eq(0));
+
+		
+
+
+		$(window).resize(function(){
+			parent.reCalculateElementSizes()
+			parent.scrollButtonsContainer.find("li").first().addClass("activeLink").siblings("li").removeClass("activelink");
 		});
 
 		var originalWaitTime = parent.waitTime;
@@ -83,33 +131,34 @@
 		parent.slideLeft();
 		parent.waitTime = originalWaitTime;
 
-		var linkHeight = parent.leftLink.height();
-		parent.leftLink.on("click", function(){ 
-			parent.disableAutoScroll();
-			parent.slideRight(); }).
-			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
-		
-		parent.rightLink.on("click",function(){ 
-			parent.disableAutoScroll();
-			parent.slideLeft(); }).
-			css({"top":((parent.carouselInner.height() -linkHeight) /2)+"px"});
-
 		parent.createSlidingLinks();
 
-		parent.scrollButtonsContainer.find("li").first().addClass("activeLink");
+		parent.scrollButtonsContainer.find("li").first().addClass("activeLink").siblings("li").removeClass("activelink");
 
-		parent.scrollButtonsContainer.
-			css({"left" : (parent.carouselInner.width() - 
-					parent.scrollButtonsContainer.width())/2});
+		// parent.scrollButtonsContainer.
+		// 	css({"left" : (parent.carouselInner.width() - 
+		// 			parent.scrollButtonsContainer.width())/2});
 	
 		if(parent.autoSlide == true)
 		{
-			parent.setUpAutoScroll();
+			// parent.setUpAutoScroll();
 		}
 	};
 
-	lSAdvancedSlider.prototype.slideLeft = function(numberOfSlides)
+
+	lSAdvancedSlider.prototype.slideLeft = _.debounce(function(numberOfSlides)
 	{
+
+		parent.adjustSlidingLinkColourWhenGoingLeft();
+
+		if(Math.abs(parent.wrapper.css("left").replace("px", "")) >= (Math.abs(parent.wrapper.width() - parent.singleCarouselItemWidth))){
+			// parent.moveFirstCarouselItemToLastPlace();
+			parent.wrapper.animate({left: 0}, parent.animationDuration/2, parent.easingType);
+			return;
+		}
+
+		parent.wrapper.animate({left: "-="+parent.singleCarouselItemWidth}, parent.animationDuration, parent.easingType);
+		return;
 
 		if((parseInt(parent.wrapper.css("left").replace("px",""))) == -(parent.singleImageWidth))
 		{
@@ -128,14 +177,7 @@
 		}
 
 		//adjust activelink classes
-		var currentActiveLink = parent.scrollButtonsContainer.find(".activeLink");
-		var nextActiveLink = currentActiveLink.next();
-		if(nextActiveLink.length == 0)
-		{
-			nextActiveLink = parent.scrollButtonsContainer.children().first();
-		}
-		currentActiveLink.removeClass("activeLink");
-		nextActiveLink.addClass("activeLink");
+		
 
 
 		$(document).off("keyup");
@@ -156,10 +198,49 @@
 
 			parent.waitTime = originalWaitTime;
 		});
-	};
+	}, 400);
 
-	lSAdvancedSlider.prototype.slideRight = function(numberOfSlides)
+	lSAdvancedSlider.prototype.adjustSlidingLinkColourWhenGoingRight = function(link){
+		var currentActiveLink = parent.scrollButtonsContainer.find(".activeLink");
+		var nextActiveLink = currentActiveLink.prev();
+		if(typeof link !== "undefined"){
+			nextActiveLink = link;
+		}
+		if(nextActiveLink.length == 0)
+		{
+			nextActiveLink = parent.scrollButtonsContainer.children().last();
+		}
+		currentActiveLink.removeClass("activeLink");
+		nextActiveLink.addClass("activeLink");
+	}	
+
+	lSAdvancedSlider.prototype.adjustSlidingLinkColourWhenGoingLeft = function(link){
+		var currentActiveLink = parent.scrollButtonsContainer.find(".activeLink");
+		var nextActiveLink = currentActiveLink.next();
+		if(typeof link !== "undefined"){
+			nextActiveLink = link;
+		}
+		if(nextActiveLink.length == 0)
+		{
+			nextActiveLink = parent.scrollButtonsContainer.children().first();
+		}
+		currentActiveLink.removeClass("activeLink");
+		nextActiveLink.addClass("activeLink");
+	}
+
+	lSAdvancedSlider.prototype.slideRight = _.debounce(function(numberOfSlides)
 	{
+
+		parent.adjustSlidingLinkColourWhenGoingRight();		
+
+		if(Math.abs(parent.wrapper.css("left").replace("px", "")) <= 0){
+			// parent.moveFirstCarouselItemToLastPlace();
+			parent.wrapper.animate({left: -parent.singleCarouselItemWidth * (parent.numberOfCarouselItems-1)}, parent.animationDuration/2, parent.easingType);
+			return;
+		}
+
+		parent.wrapper.animate({left: "+="+parent.singleCarouselItemWidth}, parent.animationDuration, parent.easingType);
+		return;
 		if((parseInt(parent.wrapper.css("left").replace("px",""))) == -(parent.singleImageWidth))
 		{
 
@@ -174,14 +255,7 @@
 		}
 
 		//adjust activelink classes
-		var currentActiveLink = parent.scrollButtonsContainer.find(".activeLink");
-		var nextActiveLink = currentActiveLink.prev();
-		if(nextActiveLink.length == 0)
-		{
-			nextActiveLink = parent.scrollButtonsContainer.children().last();
-		}
-		currentActiveLink.removeClass("activeLink");
-		nextActiveLink.addClass("activeLink");
+		
 
 		$(document).off("keyup");
 		parent.wrapper.animate({"left" : "+="+parent.singleImageWidth+"px"}, parent.waitTime, function(){
@@ -203,13 +277,13 @@
 
 		});
 		
-	};
+	}, 400);
 
 	lSAdvancedSlider.prototype.createSlidingLinks = function()
 	{
 		$(parent.carouselItem).each(function(index, value){
 
-			var newLink = $("<li>", { class: parent.scrollButtonClass.replace(".","")}).text(index+1);
+			var newLink = $("<li>", { class: parent.scrollButtonClass.replace(".","")});
 			
 			newLink.on("click", function(){
 
@@ -226,17 +300,19 @@
 				if(indexOfActiveLink < indexOfClickedLink)
 				{
 					//slide to the right
+					parent.adjustSlidingLinkColourWhenGoingRight($(this));
 					numberOfSlides = indexOfClickedLink - indexOfActiveLink;
 					
-					parent.slideLeft(numberOfSlides);
+					parent.slideLeftNumberOfTimes(numberOfSlides);
 				}
 
 				if(indexOfActiveLink > indexOfClickedLink)
 				{
 					//slide to the left
+					parent.adjustSlidingLinkColourWhenGoingLeft($(this));
 					numberOfSlides = indexOfActiveLink - indexOfClickedLink;
 
-					parent.slideRight(numberOfSlides);
+					parent.slideRightNumberOfTimes(numberOfSlides);
 				}
 				
 			});
@@ -245,6 +321,14 @@
 
 		});
 	}
+
+	lSAdvancedSlider.prototype.slideLeftNumberOfTimes = _.debounce(function(numberOfSlides){
+		parent.wrapper.animate({left: "-="+numberOfSlides*parent.singleCarouselItemWidth}, parent.animationDuration, parent.easingType);
+	}, 400);
+
+	lSAdvancedSlider.prototype.slideRightNumberOfTimes = _.debounce(function(numberOfSlides){
+		parent.wrapper.animate({left: "+="+numberOfSlides*parent.singleCarouselItemWidth}, parent.animationDuration, parent.easingType);
+	}, 400);
 
 	lSAdvancedSlider.prototype.setUpAutoScroll = function()
 	{
@@ -261,7 +345,7 @@
 		parent.autoSlide = false;
 	}
 
-	lSAdvancedSlider.prototype.handleDocumentKeyPress = function(e){
+	lSAdvancedSlider.prototype.handleDocumentKeyPress = _.debounce(function(e){
 
 			//left key pressed
 			if(e.keyCode == 37)
@@ -275,7 +359,7 @@
 				parent.slideLeft();
 			}
 
-	};
+	}, 400);
 
 	$.fn.advancedCarousel = function(settings){
 
