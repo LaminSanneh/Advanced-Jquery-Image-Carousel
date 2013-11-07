@@ -4,11 +4,17 @@
 
 		waitTime : 800
 
-	};
+	},
+	// This is so that all functions can have acces to all options 
+	// no matter what scope leve we're at
+	parent;
 
 	function lSAdvancedSlider(element, settings)
 	{
 		this.options = {};
+
+		parent = this;
+
 		this.element = element;
 		$.extend(this.options, defaults, settings);
 
@@ -55,8 +61,7 @@
 
 	lSAdvancedSlider.prototype.init = function()
 	{
-		var parent = this,
-			totalNumberOfImages = $(parent.carouselItem).length;
+		var totalNumberOfImages = $(parent.carouselItem).length;
 
 			$(parent.carouselItem).width(parent.singleImageWidth);
 			parent.wrapper.width(totalNumberOfImages * parent.singleImageWidth);
@@ -105,7 +110,6 @@
 
 	lSAdvancedSlider.prototype.slideLeft = function(numberOfSlides)
 	{
-		var parent = this;
 
 		if((parseInt(parent.wrapper.css("left").replace("px",""))) == -(parent.singleImageWidth))
 		{
@@ -156,7 +160,6 @@
 
 	lSAdvancedSlider.prototype.slideRight = function(numberOfSlides)
 	{
-		var parent = this;
 		if((parseInt(parent.wrapper.css("left").replace("px",""))) == -(parent.singleImageWidth))
 		{
 
@@ -204,7 +207,6 @@
 
 	lSAdvancedSlider.prototype.createSlidingLinks = function()
 	{
-		var parent = this;
 		$(parent.carouselItem).each(function(index, value){
 
 			var newLink = $("<li>", { class: parent.scrollButtonClass.replace(".","")}).text(index+1);
@@ -246,7 +248,6 @@
 
 	lSAdvancedSlider.prototype.setUpAutoScroll = function()
 	{
-		var parent = this;
 		setTimeout(function(){
 			if(parent.autoSlide == true)
 			{
@@ -257,13 +258,10 @@
 	}
 
 	lSAdvancedSlider.prototype.disableAutoScroll = function(){
-		var parent = this;
 		parent.autoSlide = false;
 	}
 
 	lSAdvancedSlider.prototype.handleDocumentKeyPress = function(e){
-		
-		var parent = this;
 
 			//left key pressed
 			if(e.keyCode == 37)
