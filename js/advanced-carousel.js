@@ -2,7 +2,10 @@
 
 	var defaults = {
 
-		waitTime : 800
+		waitTime : 800,
+		showNavController: true,
+		showScrollButtons: true
+
 
 	},
 	// This is so that all functions can have acces to all options 
@@ -131,7 +134,9 @@
 		parent.slideLeft();
 		parent.waitTime = originalWaitTime;
 
-		parent.createSlidingLinks();
+		if(parent.options.showScrollButtons == true){
+			parent.createSlidingLinks();
+		}
 
 		parent.scrollButtonsContainer.find("li").first().addClass("activeLink").siblings("li").removeClass("activelink");
 
@@ -142,6 +147,12 @@
 		if(parent.autoSlide == true)
 		{
 			// parent.setUpAutoScroll();
+		}
+
+		if(parent.options.showNavController == false){
+			console.log("hello");
+			parent.leftLink.remove();
+			parent.rightLink.remove();
 		}
 	};
 

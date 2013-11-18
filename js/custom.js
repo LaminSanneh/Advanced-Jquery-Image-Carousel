@@ -15,7 +15,10 @@
 			scrollButtonClass : ".scroll-button",
 			autoSlide : true,
 			animationDuration: 1000,
-			easing: "easeInOutCubic"
+			easing: "easeInOutCubic",
+			showNavController: false,
+			showScrollButtons: false
+
 
 		});
 
