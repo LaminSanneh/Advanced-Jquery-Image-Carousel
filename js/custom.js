@@ -4,18 +4,18 @@
 
 		$(".carousel-outer").advancedCarousel({
 
-			waitTime : 2000,
+			waitTime : 000,
 			carouselInner : ".carousel-inner",
 			wrapper : ".wrapper",
-			leftTransparentElement : ".left-transparent",
-			rightTransparentElement : ".right-transparent",
 			carouselItem : ".carousel-item",
 			customHeight : 400,
 			leftLink : ".left-link",
 			rightLink : ".right-link",
 			scrollButtonsContainer : ".scroll-buttons",
 			scrollButtonClass : ".scroll-button",
-			autoSlide : true
+			autoSlide : true,
+			animationDuration: 1000,
+			easing: "easeInOutCubic"
 
 		});
 
